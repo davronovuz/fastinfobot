@@ -2,7 +2,7 @@ from aiogram import types
 from aiogram.dispatcher.filters.builtin import CommandStart
 from aiogram.utils.deep_linking import get_start_link
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-from loader import dp,db,bot
+from loader import dp,user_db,bot
 
 
 @dp.message_handler(CommandStart())
@@ -16,17 +16,17 @@ async def bot_start(message: types.Message):
         try:
             referrer_id = int(message.get_args())
             # Ensure referrer exists in the database
-            referrer = db.select_user(id=referrer_id)
+            referrer = user_db.select_user(id=referrer_id)
             if not referrer:
                 referrer_id = None
         except ValueError:
             referrer_id = None
 
     # Check if the user is already in the database
-    user = db.select_user(telegram_id=telegram_id)
+    user = user_db.select_user(telegram_id=telegram_id)
     if not user:
         # Add new user to the database
-        db.add_user(telegram_id=telegram_id, username=username, referrer_id=referrer_id)
+        user_db.add_user(telegram_id=telegram_id, username=username, referrer_id=referrer_id)
         await message.answer(
             f"Salom, {message.from_user.full_name}! \n"
             "Siz ushbu bot orqali o'z harajatlaringizni kuzatishingiz mumkin. \n"
@@ -36,11 +36,11 @@ async def bot_start(message: types.Message):
 
         # If the user joined using a referral link, update referral rewards
         if referrer_id:
-            db.update_referral_reward(referrer_id=referrer_id, reward_amount=1000.0)  # Example reward amount
+            user_db.update_referral_reward(referrer_id=referrer_id, reward_amount=1000.0)  # Example reward amount
             await message.answer("Sizni taklif qilgan foydalanuvchiga mukofot berildi!")
     else:
         # Update user's last active time
-        db.update_user_last_active(user_id=user[0])
+        user_db.update_user_last_active(user_id=user[0])
         await message.answer(
             f"Yana salom, {message.from_user.full_name}! \n"
             "Qaytganingizdan xursandmiz. Bot orqali siz svet, gaz, chiqindi kabi xarajatlaringizni kuzatishda davom etishingiz mumkin.",
@@ -50,7 +50,7 @@ async def bot_start(message: types.Message):
 @dp.message_handler(lambda message: message.text == "Referal havolam")
 async def get_referral_link(message: types.Message):
     telegram_id = message.from_user.id
-    user = db.select_user(telegram_id=telegram_id)
+    user = user_db.select_user(telegram_id=telegram_id)
     if user:
         referral_link = await get_start_link(payload=user[0])
         await message.answer(
@@ -63,9 +63,9 @@ async def get_referral_link(message: types.Message):
 @dp.message_handler(lambda message: message.text == "Mening referallarim")
 async def my_referrals(message: types.Message):
     telegram_id = message.from_user.id
-    user = db.select_user(telegram_id=telegram_id)
+    user = user_db.select_user(telegram_id=telegram_id)
     if user:
-        referral_summary = db.get_user_referral_summary(user_id=user[0])
+        referral_summary = user_db.get_user_referral_summary(user_id=user[0])
         if referral_summary:
             reward_amount, referrals_count = referral_summary
             await message.answer(
@@ -80,7 +80,7 @@ async def my_referrals(message: types.Message):
 @dp.message_handler(lambda message: message.text == "Balansim")
 async def my_balance(message: types.Message):
     telegram_id = message.from_user.id
-    user = db.select_user(telegram_id=telegram_id)
+    user = user_db.select_user(telegram_id=telegram_id)
     if user:
         balance = user[4]  # Assuming balance is the 5th field
         await message.answer(f"Sizning balansingiz: {balance} so'm")
@@ -90,11 +90,11 @@ async def my_balance(message: types.Message):
 @dp.message_handler(lambda message: message.text == "Pulni yechib olish")
 async def withdraw_balance(message: types.Message):
     telegram_id = message.from_user.id
-    user = db.select_user(telegram_id=telegram_id)
+    user = user_db.select_user(telegram_id=telegram_id)
     if user:
         balance = user[4]  # Assuming balance is the 5th field
         if balance > 0:
-            db.withdraw_user_balance(user_id=user[0], amount=balance)
+            user_db.withdraw_user_balance(user_id=user[0], amount=balance)
             await message.answer(f"Siz {balance} so'm yechib oldingiz. Balansingiz 0 so'mga teng.")
         else:
             await message.answer("Sizda yechib olish uchun yetarli mablag' mavjud emas.")

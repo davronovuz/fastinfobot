@@ -1,6 +1,6 @@
 from aiogram import executor
 
-from loader import dp, db
+from loader import dp,user_db,group_db,subscription_channel_db,admin_db
 import middlewares, filters, handlers
 from utils.notify_admins import on_startup_notify
 from utils.set_bot_commands import set_default_commands
@@ -12,11 +12,12 @@ async def on_startup(dispatcher):
 
     # Ma'lumotlar bazasini yaratamiz:
     try:
-        db.create_table_users()
-        db.create_table_referral_rewards()
-        db.create_table_transaction_history()
-        db.create_table_admins()
-        db.create_table_subscription_channels()
+        user_db.create_table_users()
+        user_db.create_table_referral_rewards()
+        user_db.create_table_transaction_history()
+        admin_db.create_table_admins()
+        subscription_channel_db.create_table_subscription_channels()
+        group_db.create_table_groups()
     except Exception as err:
         print(err)
 
