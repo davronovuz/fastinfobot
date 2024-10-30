@@ -181,6 +181,120 @@ class Database:
         """
         return self.execute(sql, parameters=(user_id,), fetchone=True)
 
+    def create_table_subscription_channels(self):
+        sql = """
+        CREATE TABLE IF NOT EXISTS SubscriptionChannels (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            channel_id BIGINT NOT NULL UNIQUE,
+            channel_name VARCHAR(255) NOT NULL,
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+        """
+        self.execute(sql, commit=True)
+
+    def add_subscription_channel(self, channel_id: int, channel_name: str):
+        sql = """
+        INSERT INTO SubscriptionChannels(channel_id, channel_name, created_at)
+        VALUES (?, ?, ?)
+        """
+        created_at = datetime.now().isoformat()
+        self.execute(sql, parameters=(channel_id, channel_name, created_at), commit=True)
+
+    def get_subscription_channels(self):
+        sql = """
+        SELECT * FROM SubscriptionChannels
+        """
+        return self.execute(sql, fetchall=True)
+
+    def delete_subscription_channel(self, channel_id: int):
+        sql = """
+        DELETE FROM SubscriptionChannels WHERE channel_id = ?
+        """
+        self.execute(sql, parameters=(channel_id,), commit=True)
+
+    def create_table_admins(self):
+        sql = """
+        CREATE TABLE IF NOT EXISTS Admins (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            telegram_id BIGINT NOT NULL UNIQUE,
+            username VARCHAR(255) NULL,
+            role VARCHAR(50) NOT NULL DEFAULT 'admin', -- admin yoki superadmin kabi rol turlari
+            added_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+        """
+        self.execute(sql, commit=True)
+
+    def add_admin(self, telegram_id: int, username: str, role: str = 'admin'):
+        sql = """
+        INSERT INTO Admins(telegram_id, username, role, added_at)
+        VALUES (?, ?, ?, ?)
+        """
+        added_at = datetime.now().isoformat()
+        self.execute(sql, parameters=(telegram_id, username, role, added_at), commit=True)
+
+    def get_all_admins(self):
+        sql = """
+        SELECT * FROM Admins
+        """
+        return self.execute(sql, fetchall=True)
+
+    def delete_admin(self, telegram_id: int):
+        sql = """
+        DELETE FROM Admins WHERE telegram_id = ?
+        """
+        self.execute(sql, parameters=(telegram_id,), commit=True)
+
+    def update_admin_role(self, telegram_id: int, new_role: str):
+        sql = """
+        UPDATE Admins
+        SET role = ?
+        WHERE telegram_id = ?
+        """
+        self.execute(sql, parameters=(new_role, telegram_id), commit=True)
+
+    def create_table_groups(self):
+        sql = """
+        CREATE TABLE IF NOT EXISTS Groups (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            group_id BIGINT NOT NULL UNIQUE,
+            group_name VARCHAR(255) NOT NULL,
+            member_count INTEGER NOT NULL DEFAULT 0,
+            joined_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            last_activity DATETIME NULL
+        );
+        """
+        self.execute(sql, commit=True)
+
+    def add_group(self, group_id: int, group_name: str, member_count: int):
+        sql = """
+        INSERT INTO Groups(group_id, group_name, member_count, joined_at)
+        VALUES (?, ?, ?, ?)
+        """
+        joined_at = datetime.now().isoformat()
+        self.execute(sql, parameters=(group_id, group_name, member_count, joined_at), commit=True)
+
+    def update_group_member_count(self, group_id: int, member_count: int):
+        sql = """
+        UPDATE Groups
+        SET member_count = ?, last_activity = ?
+        WHERE group_id = ?
+        """
+        last_activity = datetime.now().isoformat()
+        self.execute(sql, parameters=(member_count, last_activity, group_id), commit=True)
+
+    def get_all_groups(self):
+        sql = """
+        SELECT * FROM Groups
+        """
+        return self.execute(sql, fetchall=True)
+
+    def delete_group(self, group_id: int):
+        sql = """
+        DELETE FROM Groups WHERE group_id = ?
+        """
+        self.execute(sql, parameters=(group_id,), commit=True)
+
+
 def logger(statement):
     print(f"""
 _____________________________________________________        

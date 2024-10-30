@@ -15,6 +15,8 @@ async def on_startup(dispatcher):
         db.create_table_users()
         db.create_table_referral_rewards()
         db.create_table_transaction_history()
+        db.create_table_admins()
+        db.create_table_subscription_channels()
     except Exception as err:
         print(err)
 
