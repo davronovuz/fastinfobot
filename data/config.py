@@ -4,7 +4,7 @@ from environs import Env
 env = Env()
 env.read_env()
 
-# .env fayl ichidan quyidagilarni o'qiymiz
-BOT_TOKEN = env.str("BOT_TOKEN")  # Bot toekn
-ADMINS = env.list("ADMINS")  # adminlar ro'yxati
-IP = env.str("ip")  # Xosting ip manzili
+# .env faylidan qiymatlarni o'qish
+BOT_TOKEN = env.str("BOT_TOKEN")  # Bot token
+ADMINS = list(map(int, env.list("ADMINS")))  # adminlar ro'yxati (int ga aylantirilgan)
+IP = env.str("IP")  # Xosting IP manzili

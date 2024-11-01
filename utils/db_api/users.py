@@ -145,3 +145,16 @@ class UserDatabase(Database):
         WHERE Users.id = ?
         """
         return self.execute(sql, parameters=(user_id,), fetchone=True)
+
+    def count_users_added_since(self, since_time):
+        sql = """
+        SELECT COUNT(*) FROM Users WHERE created_at >= ?
+        """
+        return self.execute(sql, parameters=(since_time.isoformat(),), fetchone=True)[0]
+
+    def count_active_users_since(self, since_time):
+        sql = """
+        SELECT COUNT(*) FROM Users WHERE last_active >= ?
+        """
+        return self.execute(sql, parameters=(since_time.isoformat(),), fetchone=True)[0]
+

@@ -1,24 +1,37 @@
 from aiogram import types
 from aiogram.dispatcher.filters.builtin import CommandStart
-from loader import dp,user_db
+from loader import dp, user_db
+
 @dp.message_handler(CommandStart())
 async def bot_start(message: types.Message):
     telegram_id = message.from_user.id
     username = message.from_user.username or message.from_user.full_name
 
+    # Foydalanuvchi bazada mavjudligini tekshirish
     user = user_db.select_user(telegram_id=telegram_id)
     if not user:
-        # Add new user to the database
+        # Yangi foydalanuvchini bazaga qo'shish
         user_db.add_user(telegram_id=telegram_id, username=username)
-        await message.answer(
-            f"Salom, {message.from_user.full_name}! \n"
-            "Siz ushbu bot orqali o'z harajatlaringizni kuzatishingiz mumkin. \n"
-            "Svet, gaz, chiqindi pullari kabi xarajatlarni boshqarish va nazorat qilish imkoniyatiga egasiz."
+        welcome_text = (
+            f"Assalomu alaykum, {message.from_user.full_name}! 👋\n\n"
+            "Sizni <b>FastKinoBot</b> botida ko‘rib turganimizdan xursandmiz! 🎉\n\n"
+            "<b>FastKinoBot</b> orqali siz quyidagi imkoniyatlardan foydalanishingiz mumkin:\n"
+            "🎬 Eng yangi va qiziqarli kinolarni topish\n"
+            "🔍 Kino kodi orqali qidirish\n"
+            "📊 Eng ko‘p ko‘rilgan va mashhur kinolar ro‘yxati\n\n"
+            "Botdan foydalanish uchun <b>kino kodini</b> kiriting va "
+            "kinoni tez va oson yuklab oling! 😊\n\n"
+            "📢 Yangiliklardan xabardor bo‘lish uchun bizning kanalga obuna bo‘lishni unutmang! "
         )
+        await message.answer(welcome_text, parse_mode="HTML")
     else:
-        # Update user's last active time
+        # Foydalanuvchini qayta kelganligini yangilash va xush kelibsiz xabarini yuborish
         user_db.update_user_last_active(user_id=user[0])
-        await message.answer(
-            f"Yana salom, {message.from_user.full_name}! \n"
-            "Qaytganingizdan xursandmiz. Bot orqali siz svet, gaz, chiqindi kabi xarajatlaringizni kuzatishda davom etishingiz mumkin."
+        welcome_back_text = (
+            f"Yana salom, {message.from_user.full_name}! 👋\n\n"
+            "FastKinoBot’ga qaytganingizdan xursandmiz! 🎉\n\n"
+            "Siz bot orqali kinolarni qidirishda davom etishingiz mumkin. "
+            "Kino kodini kiriting va eng yaxshi filmlardan zavqlaning! 🎬"
         )
+        await message.answer(welcome_back_text, parse_mode="HTML")
+
