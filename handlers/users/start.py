@@ -1,7 +1,7 @@
 from aiogram import types
 from aiogram.dispatcher.filters.builtin import CommandStart
 from loader import dp, user_db
-
+from keyboards.default.admin_keyboard import menu_kanal
 @dp.message_handler(CommandStart())
 async def bot_start(message: types.Message):
     telegram_id = message.from_user.id
@@ -33,5 +33,13 @@ async def bot_start(message: types.Message):
             "Siz bot orqali kinolarni qidirishda davom etishingiz mumkin. "
             "Kino kodini kiriting va eng yaxshi filmlardan zavqlaning! 🎬"
         )
-        await message.answer(welcome_back_text, parse_mode="HTML")
+        await message.answer(welcome_back_text, parse_mode="HTML",reply_markup=menu_kanal)
+
+
+@dp.message_handler(text='🎬Barcha Kinolar')
+async def bot_start(message: types.Message):
+    text="@tarjimakinolarfast"
+    await message.answer(f"Barcha kinolar : {text}")
+
+
 

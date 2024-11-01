@@ -2,6 +2,18 @@ from aiogram.types import ReplyKeyboardMarkup,KeyboardButton
 
 
 
+
+
+
+menu_kanal = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text='🎬Barcha Kinolar'),
+        ]
+    ],
+    resize_keyboard=True,
+)
+
 # Admin paneli uchun tugmalar
 menu_admin = ReplyKeyboardMarkup(
     keyboard=[
